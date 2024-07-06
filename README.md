@@ -4,6 +4,8 @@
 # resc
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Scrapes Eurovision Song Contest (ESC) data across several different
