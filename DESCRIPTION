@@ -14,8 +14,6 @@ URL: https://github.com/phiido/rescraper
 BugReports: https://github.com/phiido/rescraper/issues
 Imports:
     glue,
-    httr2
-Depends:
-  memoise  
+    httr2 
 Remotes: 
   phiido/resc
