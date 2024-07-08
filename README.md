@@ -8,6 +8,8 @@
 [![R-CMD-check](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
+**! Currently still in early development !**
+
 Scrapes Eurovision Song Contest (ESC) data across several different
 categories. This packages is not meant to be used for general use as the
 collected data is pushed to the more formal package
