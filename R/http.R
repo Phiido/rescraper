@@ -25,9 +25,24 @@ get_user_agent <- function() {
 #'
 #' @noRd
 get_endpoint <- function(host) {
+
+  name <- get_domain_name(host)
+
   switch(host,
-    "wiki" = "https://en.wikipedia.org/w/api.php"
+    "wiki" = glue::glue("{name}/w/api.php")
   )
+}
+
+#' Return the domain name using a shorthand
+#'
+#' @param host
+#'
+#' @returns A string with domain name
+#'
+#' @noRd
+get_domain_name <- function(host) {
+  switch(host,
+         "wiki" = "https://en.wikipedia.org")
 }
 
 #' A semi polite HTTP request
@@ -59,6 +74,25 @@ perform_polite_request <- function(request,
     httr2::req_perform()
 
   return(response)
+}
+
+#' Send a request query for a page
+#'
+#' @param page Which page to query
+#' @param api Which api to target
+#' @param ... Additional parameters to be sent to [httr2::req_url_query()]
+#'
+#' @returns A [httr2] response
+#'
+#' @noRd
+request_content_page <- function(page, api, ...) {
+  params <- unlist(...)
+  params[["page"]] <- page
+
+  get_endpoint(api) |>
+    httr2::request() |>
+    httr2::req_url_query(!!!params) |>
+    perform_polite_request()
 }
 
 #' Return the path name for the rescraper cache directory
