@@ -5,17 +5,23 @@
 #' @export
 scrape_countries <- function() {
   n_countries <- 0L
-  cli::cli_progress_step(msg = "Scraping country info..",
-                         msg_done = "Scraped country info on {n_countries} countries",
-                         msg_failed = "Failed to scrape country info..",
-                         spinner = TRUE)
+  cli::cli_progress_step(
+    msg = "Scraping country info..",
+    msg_done = "Scraped country info on {n_countries} countries",
+    msg_failed = "Failed to scrape country info..",
+    spinner = TRUE
+  )
 
-  response <- request_content_page(page = "List_of_countries_in_the_Eurovision_Song_Contest",
-                                   api = "wiki",
-                                   list(action  = "parse",
-                                        format  = "json",
-                                        section = 1, # Participants
-                                        prop    = "text"))
+  response <- request_content_page(
+    page = "List_of_countries_in_the_Eurovision_Song_Contest",
+    api = "wiki",
+    list(
+      action = "parse",
+      format = "json",
+      section = 1, # Participants
+      prop = "text"
+    )
+  )
 
   table <- json_to_html(response) |>
     rvest::read_html() |>
