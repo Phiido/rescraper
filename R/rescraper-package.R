@@ -2,7 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom memoise memoise
+#' @importFrom methods is
 #' @importFrom rlang .data
 #' @importFrom rlang .env
 ## usethis namespace: end

@@ -11,7 +11,8 @@
 #'
 #' @noRd
 extract_html <- function(response) {
-  if (!class(response) == "httr2_response") cli::cli_abort("response is of wrong class")
+  if (!methods::is(response, "httr2_response")) cli::cli_abort("Argument response is of wrong class")
+
 
   httr2::resp_body_json(response)[["parse"]][["text"]][[1]]
 }
