@@ -50,18 +50,46 @@ get_endpoint <- function(host) {
 #'
 #' @noRd
 perform_polite_request <- function(request,
-                                   delay = get_user_agent()$delay,
-                                   user_agent = get_user_agent()$name) {
-  if (delay < 1) {
-    cli::cli_alert_warning("Delay of {delay} is too short, reverting to 1 second")
-    delay <- 1
-  }
-
-  Sys.sleep(delay)
-
+                                   user_agent = get_user_agent()$name,
+                                   rate = get_user_agent()$delay) {
   response <- request |>
     httr2::req_user_agent(string = user_agent) |>
+    httr2::req_throttle(rate = rate) |>
+    httr2::req_cache(path = cache_get()) |>
     httr2::req_perform()
 
   return(response)
+}
+
+#' Return the path name for the rescraper cache directory
+#'
+#' @returns A `fs::path` object
+#'
+#' @noRd
+cache_path <- function() {
+  fs::path(tools::R_user_dir(package = "rescraper", which = "cache"))
+}
+
+#' Get the path for the rescraper cache directory
+#'
+#' Creates the directory if it doesn't exist.
+#'
+#' @returns A `fs::path` object
+#'
+#' @noRd
+cache_get <- function() {
+  path <- cache_path()
+
+  if (!fs::dir_exists(path)) fs::dir_create(path)
+
+  return(path)
+}
+
+#' Remove the rescraper cache directory
+#'
+#' @returns NULL
+#'
+#' @noRd
+cache_remove <- function() {
+  fs::dir_delete(cache_path())
 }
