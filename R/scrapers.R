@@ -1,40 +1,42 @@
 #' Scrape countries have participated or still participates in Eurovision as an entry
 #'
-#' @param quiet Should scraping be quiet and not output to console
-#'
 #' @returns A tibble
 #'
 #' @export
-scrape_countries <- function(quiet = FALSE) {
-  if (!quiet) cli::cli_alert_info("Scraping country info")
+scrape_countries <- function() {
+  n_countries <- 0L
+  cli::cli_progress_step(msg = "Scraping country info..",
+                         msg_done = "Scraped country info on {n_countries} countries",
+                         msg_failed = "Failed to scrape country info..",
+                         spinner = TRUE)
 
-  page_subdir <- "List_of_countries_in_the_Eurovision_Song_Contest"
+  response <- request_content_page(page = "List_of_countries_in_the_Eurovision_Song_Contest",
+                                   api = "wiki",
+                                   list(action  = "parse",
+                                        format  = "json",
+                                        section = 1, # Participants
+                                        prop    = "text"))
 
-  response <- get_endpoint("wiki") |>
-    httr2::request() |>
-    httr2::req_url_query(
-      action = "parse",
-      format = "json",
-      page = page_subdir,
-      section = 1, # Participants
-      prop = "text"
-    ) |>
-    perform_polite_request()
-
-  table <- extract_html(response) |>
+  table <- json_to_html(response) |>
     rvest::read_html() |>
     rvest::html_element(xpath = "//table[2]") |>
     rvest::html_table() |>
     janitor::clean_names() |>
-    dplyr::rename(name = dplyr::starts_with("country"),
-                  broadcaster = dplyr::starts_with("broadcaster")) |>
-    dplyr::mutate(name = clean_string(.data$name),
-                  broadcaster = clean_string(.data$broadcaster),
-                  code = resc::get_countrycode(.data$name), .before = .data$name) |>
+    dplyr::rename(
+      name = dplyr::starts_with("country"),
+      broadcaster = dplyr::starts_with("broadcaster")
+    ) |>
+    dplyr::mutate(
+      name = clean_string(.data$name),
+      broadcaster = clean_string(.data$broadcaster),
+      code = resc::get_countrycode(.data$name), .before = .data$name
+    ) |>
     dplyr::select(.data$code:.data$broadcaster) |>
     tibble::as_tibble()
 
-  if (!quiet) cli::cli_alert_success("Successfully scraped countries!")
+  n_countries <- nrow(table)
+
+  cli::cli_progress_update()
 
   return(table)
 }

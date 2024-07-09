@@ -4,10 +4,7 @@
 \alias{scrape_countries}
 \title{Scrape countries have participated or still participates in Eurovision as an entry}
 \usage{
-scrape_countries(quiet = FALSE)
-}
-\arguments{
-\item{quiet}{Should scraping be quiet and not output to console}
+scrape_countries()
 }
 \value{
 A tibble
