@@ -1,25 +1,25 @@
-#' Turn httr2 response from raw json into HTML
+#' Convert httr2 JSON response to HTML
 #'
 #' Extracts the raw and crude HTML part from a [httr2] response that is
-#' classified as json.
+#' classified as JSON.
 #'
-#' @param response A character vector with raw json
+#' @param response A character vector with raw JSON
 #'
 #' @seealso [httr2::resp_body_json()]
 #'
-#' @returns A character vector
+#' @return A character vector
 #'
 #' @noRd
 json_to_html <- function(response) {
   httr2::resp_body_json(response)[["parse"]][["text"]][[1]]
 }
 
-#' Extract the query response from a httr2 json response
+#' Extract a property from a httr2 JSON response
 #'
-#' @param response Takes a response object from [httr2]
-#' @param property Which property to extract from the query
+#' @param response A httr2 response object
+#' @param property The property to extract from the query.
 #'
-#' @returns A character vector
+#' @returns A character vector containing the extracted property.
 #'
 #' @noRd
 json_extract_query <- function(response, property) {

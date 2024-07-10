@@ -2,13 +2,18 @@
 % Please edit documentation in R/scrapers.R
 \name{scrape_countries}
 \alias{scrape_countries}
-\title{Scrape countries have participated or still participates in Eurovision as an entry}
+\title{Scrapes info about countries in Eurovision Song Contest}
 \usage{
 scrape_countries()
 }
 \value{
-A tibble
+A tibble containing the scraped information.
 }
 \description{
-Scrape countries have participated or still participates in Eurovision as an entry
+This function fetches information about countries that have participated or still participate in
+the Eurovision Song Contest as an entry.
+}
+\examples{
+scrape_countries()
+
 }
