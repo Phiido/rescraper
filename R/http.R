@@ -32,7 +32,6 @@ get_user_agent <- function() {
 #'
 #' @noRd
 get_endpoint <- function(host) {
-
   name <- get_domain_name(host)
 
   switch(host,
@@ -54,7 +53,8 @@ get_endpoint <- function(host) {
 #' @noRd
 get_domain_name <- function(host) {
   switch(host,
-         "wiki" = "https://en.wikipedia.org")
+    "wiki" = "https://en.wikipedia.org"
+  )
 }
 
 #' Send a polite HTTP request using httr2::request
