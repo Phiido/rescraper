@@ -1,5 +1,5 @@
 #' Scrapes info about countries in Eurovision Song Contest
-#' 
+#'
 #' This function fetches information about countries that have participated or still participate in
 #' the Eurovision Song Contest as an entry.
 #'
@@ -7,7 +7,7 @@
 #'
 #' @examples
 #' scrape_countries()
-#' 
+#'
 #' @export
 scrape_countries <- function() {
   n_countries <- 0L
@@ -29,7 +29,7 @@ scrape_countries <- function() {
     )
   )
 
-  
+
   table <- json_to_html(response) |>
     rvest::read_html() |>
     rvest::html_element(xpath = "//table[2]") |>
@@ -66,19 +66,20 @@ scrape_countries <- function() {
 #' @return A tibble containing the scraped information. The tibble has the
 #'   following columns:
 #'   - `year`: The year of the contest.
-#'   - `title`: The title of the contest.
-#'   - `url`: The URL of the contest's Wikipedia page.
-#'   - `host_city`: The city where the contest was held.
-#'   - `host_country`: The country where the contest was held.
-#'   - `host_country_code`: The country code of the country where the contest
-#'     was held.
-#'   - `location`: The location where the contest was held (e.g., "Stockholm,
-#'     Sweden").
-#'   - `date`: The date of the contest.
-#'   - `result`: The result of the contest (as a tibble).
+#'   - `edition`: The contest edition.
+#'   - `slogan`: The contest slogan
+#'   - `url_logo`: URL of the contest logo.
+#'   - `country_code`: Country code for the hosting country
+#'   - `city`: The city where the contest was held.
+#'   - `venue`: The venue that the contest was held at
+#'   - `presenters`: Names of presenters
+#'   - `musical_director`: Name of musical director
+#'   - `director`: Name of director
+#'   - `executive_producers`: Names of executive producers
+#'   - `executive_supervisors`: Names of executive supervisors
 #'
 #' @export
-scrape_contests <- function(years = resc::get_years()) {
+scrape_contests <- function(years = resc::get_years()$all) {
   msg <- ""
   n_contests <- 0L
 
@@ -94,34 +95,41 @@ scrape_contests <- function(years = resc::get_years()) {
       action  = "query",
       format  = "json",
       list    = "categorymembers",
-      cmlimit = 150,
+      cmlimit = 150, # will last until year 2109
       cmtitle = "Category:Eurovision_Song_Contest_by_year",
       cmprop  = "title|type"
     )
   ) |>
     json_extract_query(property = "title")
 
-  title_contests <- title_contests[1] # TODO remove before commit!
+  years <- stringr::str_extract(string = title_contests, pattern = "[0-9]+$") |>
+    as.numeric()
 
-  list_tables <- list()
+  years <- years[!years %in% resc::get_years()$cancelled]
+  editions <- pmin(years - 1955, seq_along(years))
 
-  for (title in title_contests) {
-    year <- stringr::str_extract(string = title, pattern = "[0-9]+$")
-    msg <- glue::glue(": currently on {year}")
+  list_tables <- vector("list", length(years))
+
+  for (i in seq_along(years)) {
+    this_title <- title_contests[i]
+    this_year <- years[i]
+    this_edition <- editions[i]
+
+    msg <- glue::glue(" {this_year}")
     n_contests <- n_contests + 1
 
     cli::cli_progress_update()
 
-    # Currently loads the whole page as infobox is before any section
-    # however, this may not be a problem as the page is then cached
-    # for any other scrapes / queries.
+    # Note: currently loads the whole page as infobox is before any section.
+    # However, this may not be a problem as the page is then cached for any
+    # other scrapes / queries.
     html_page <- request_content_page(
-      page = title,
-      api  = "wiki",
+      page = this_title,
+      api = "wiki",
       list(
         action  = "parse",
         format  = "json",
-        page    = title,
+        page    = this_title,
         prop    = "text"
       )
     ) |>
@@ -129,27 +137,49 @@ scrape_contests <- function(years = resc::get_years()) {
       rvest::read_html()
 
     html_infobox <- html_page |>
-      rvest::html_element(css = 'table.infobox')
+      rvest::html_element(css = "table.infobox")
 
-    url_logo <- html_page |>
-      rvest::html_element(xpath = '//a[contains(@href, "Logo.svg")]') |>
+    this_slogan <- html_page |>
+      rvest::html_element(xpath = '//td[contains(@class, "infobox-subheader")]') |>
+      rvest::html_text()
+
+    cli::cli_progress_update()
+
+    logo_url <- html_page |>
+      rvest::html_element(xpath = '//td[@class="infobox-image"]/span/a') |>
       rvest::html_attr("href")
 
     location <- html_infobox |>
       rvest::html_element(xpath = '//th[contains(., "Venue")]/following-sibling::td') |>
       rvest::html_text2()
 
-    venue <- stringr::str_extract(location, pattern = "^.*?(?=\\n)")
-    city <- stringr::str_extract(location, pattern = "(?<=\\n).*?(?=,)")
     country <- stringr::str_extract(location, pattern = "(?<=, ).*$")
 
-    list_tables[[year]] <- infobox
+    cli::cli_progress_update()
+
+    this_contest <- tibble::tibble_row(
+      year = this_year,
+      edition = this_edition,
+      slogan = this_slogan,
+      url_logo = glue::glue('{get_domain_name("wiki")}{logo_url}'),
+      country_code = resc::get_countrycode(country),
+      city = stringr::str_extract(location, pattern = "(?<=\\n).*?(?=,)"),
+      venue = stringr::str_extract(location, pattern = "^.*?(?=\\n)"),
+      presenters = get_infobox_row(html_infobox, tag = "Presenter"),
+      musical_director = get_infobox_row(html_infobox, tag = "Musical director"),
+      director = get_infobox_row(html_infobox, tag = "Directed by"),
+      executive_producers = get_infobox_row(html_infobox, tag = "Executive producer"),
+      executive_supervisor = get_infobox_row(html_infobox, tag = "Executive supervisor")
+    )
+
+    cli::cli_progress_update()
+
+    list_tables[[as.character(this_year)]] <- this_contest
   }
 
-  output_table <- tibble::as_tibble(do.call("rbind", 1))
+  output_table <- do.call(dplyr::bind_rows, list_tables)
 
   cli::cli_progress_update()
 
   return(output_table)
 }
-
