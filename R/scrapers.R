@@ -183,3 +183,76 @@ scrape_contests <- function(years = resc::get_years()$all) {
 
   return(output_table)
 }
+
+#' Scrapes the voting system information from the Eurovision Song Contest.
+#'
+#' This function scrapes the voting system information from the Eurovision
+#' Song Contest wiki page. The information is returned as a `list` with the
+#' following columns:
+#'
+#' - `year_start`: Starting year for ruleset.
+#' - `year_end`: End year for ruleset.
+#' - `point_allocation`: How points are allocated from each country.
+#' - `use`: How the tie breaking rule is used.
+#' - `description`: A description of the ruleset.
+#'
+#' @return A named list with the voting system rules and tie breaking rules.
+#'
+#' @export
+scrape_voting_systems <- function() {
+
+  cli::cli_progress_step("Scraping voting system info",
+                         msg_done = "Scraped info on voting system info",,
+                         msg_failed = "Failed to scrape voting system info..",
+                         spinner = TRUE)
+
+  page_title <- "Voting_at_the_Eurovision_Song_Contest"
+
+  html_tables <- request_content_page(
+    page = page_title,
+    api = "wiki",
+    list(
+      action  = "parse",
+      format  = "json",
+      page    = page_title,
+      prop    = "text"
+    )
+  ) |>
+    json_to_html() |>
+    rvest::read_html() |>
+    rvest::html_elements(xpath = '//table[contains(@class, "wikitable")]')
+
+  # warnings present regarding tidyselect and the use of .data
+  # and numeric coercion from elements with alpha characters
+  suppressWarnings({
+    table_voting <- html_tables[[1]] |>
+      rvest::html_table() |>
+      janitor::clean_names() |>
+      dplyr::rename(point_allocation = .data$points, description = .data$voting_system) |>
+      dplyr::mutate(year = stringr::str_trim(stringr::str_remove(.data$year, "\\(.*\\)"))) |>
+      dplyr::mutate(
+        year_start = stringr::str_extract(.data$year, pattern = "^[0-9]{4}"),
+        year_end = stringr::str_extract(.data$year, pattern = "[0-9]{4}$"),
+        .before = .data$year
+      ) |>
+      dplyr::mutate(dplyr::across(dplyr::starts_with("year"), as.numeric)) |>
+      dplyr::mutate(description = stringr::str_remove_all(.data$description, pattern = "\\[.*\\]")) |>
+      dplyr::select(!.data$year)
+
+    table_tie <- html_tables[[7]] |>
+      rvest::html_table() |>
+      janitor::clean_names() |>
+      dplyr::mutate(
+        year_start = stringr::str_extract(.data$year, pattern = "^[0-9]{4}"),
+        year_end = stringr::str_extract(.data$year, pattern = "[0-9]{4}$"),
+        .before = .data$year
+      ) |>
+      dplyr::mutate(dplyr::across(dplyr::starts_with("year"), as.numeric)) |>
+      dplyr::mutate(description = stringr::str_remove_all(.data$description, pattern = "\\[.*\\]")) |>
+      dplyr::select(!.data$year)
+  })
+
+  voting_system <- list(voting = table_voting, tie_break = table_tie)
+
+  return(voting_system)
+}

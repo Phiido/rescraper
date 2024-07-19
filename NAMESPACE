@@ -3,6 +3,7 @@
 export(clean_string)
 export(scrape_contests)
 export(scrape_countries)
+export(scrape_voting_systems)
 importFrom(methods,is)
 importFrom(rlang,.data)
 importFrom(rlang,.env)
