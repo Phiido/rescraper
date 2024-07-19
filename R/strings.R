@@ -17,7 +17,7 @@
 #'
 #' clean_string("ARD (NDR)")
 #' #> [1] "ARD (NDR)"
-#' 
+#'
 #' @export
 clean_string <- function(str) {
   str |>

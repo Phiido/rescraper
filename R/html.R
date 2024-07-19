@@ -9,14 +9,14 @@
 #'
 #' @noRd
 get_cell_text <- function(x) {
-    x |>
-        rvest::html_text2() |>
-        stringr::str_split(pattern = "\\n") |>
-        unlist() |>
-        stringr::str_remove(pattern = "\\[\\d\\]") |>
-        stringr::str_remove(pattern = "\\(.*\\)") |>
-        stringr::str_remove(pattern = "Semi-finals:,\\s|Final:,\\s") |>
-        stringr::str_trim()
+  x |>
+    rvest::html_text2() |>
+    stringr::str_split(pattern = "\\n") |>
+    unlist() |>
+    stringr::str_remove(pattern = "\\[\\d\\]") |>
+    stringr::str_remove(pattern = "\\(.*\\)") |>
+    stringr::str_remove(pattern = "Semi-finals:,\\s|Final:,\\s") |>
+    stringr::str_trim()
 }
 
 get_infobox_row <- function(html, tag) {

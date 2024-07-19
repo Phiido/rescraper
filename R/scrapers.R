@@ -84,13 +84,14 @@ scrape_contests <- function(years = resc::get_years()$all) {
   n_contests <- 0L
 
   cli::cli_progress_step("Scraping contest info{msg}",
-                         msg_done = "Scraped info on {n_contests} contests",,
-                         msg_failed = "Failed to scrape contest info..",
-                         spinner = TRUE)
+    msg_done = "Scraped info on {n_contests} contests", ,
+    msg_failed = "Failed to scrape contest info..",
+    spinner = TRUE
+  )
 
   title_contests <- request_content_page(
     page = "List_of_Eurovision_Song_Contest_entries",
-    api  = "wiki",
+    api = "wiki",
     list(
       action  = "query",
       format  = "json",
@@ -200,11 +201,11 @@ scrape_contests <- function(years = resc::get_years()$all) {
 #'
 #' @export
 scrape_voting_systems <- function() {
-
   cli::cli_progress_step("Scraping voting system info",
-                         msg_done = "Scraped info on voting system info",,
-                         msg_failed = "Failed to scrape voting system info..",
-                         spinner = TRUE)
+    msg_done = "Scraped info on voting system info", ,
+    msg_failed = "Failed to scrape voting system info..",
+    spinner = TRUE
+  )
 
   page_title <- "Voting_at_the_Eurovision_Song_Contest"
 

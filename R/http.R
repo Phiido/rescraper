@@ -1,5 +1,5 @@
 #' Get the User Agent for rescraper
-#' 
+#'
 #' @returns A named list with the following elements:
 #'   - `name`: a string representing the User-Agent HTTP header
 #'   - `delay`: a numeric value for throttling HTTP requests
@@ -7,8 +7,8 @@
 #' @details The User-Agent HTTP header is used by rescraper to identify itself when
 #'   making HTTP requests. The delay is used by rescraper's HTTP request
 #'   functionality to ensure a minimum time between requests.
-#' 
-#' @noRd 
+#'
+#' @noRd
 get_user_agent <- function() {
   pkg <- utils::packageDescription("rescraper")
   user_agent_name <- glue::glue("{pkg$Package}/{pkg$Version} ({pkg$URL})")
@@ -47,9 +47,9 @@ get_endpoint <- function(host) {
 #' @param host A character string representing the shorthand for the domain.
 #'   Currently, only the shorthand "wiki" is supported, which corresponds
 #'   to "https://en.wikipedia.org".
-#' 
+#'
 #' @returns A character string representing the corresponding domain name.
-#' 
+#'
 #' @noRd
 get_domain_name <- function(host) {
   switch(host,
