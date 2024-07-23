@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Phiido/rescraper/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/thoroo/rescraper/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/thoroo/rescraper/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 **! Currently still in early development !**
@@ -13,10 +13,10 @@
 Scrapes Eurovision Song Contest (ESC) data across several different
 categories. This packages is not meant to be used for general use as the
 collected data is pushed to the more formal package
-[resc](https://github.com/Phiido/resc).
+[resc](https://github.com/thoroo/resc).
 
 As such, if you only want to access, use, manipulate or modify the data
-then use [resc](https://github.com/Phiido/resc) instead.
+then use [resc](https://github.com/thoroo/resc) instead.
 
 ## Installation
 
@@ -25,7 +25,7 @@ You can install the development version of rescraper from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("Phiido/rescraper")
+devtools::install_github("thoroo/rescraper")
 ```
 
 ## Disclaimer
